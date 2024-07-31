@@ -1,7 +1,9 @@
+import Home from "@/components/pages/Home";
+
 function App() {
 	return (
 		<>
-			<main className="text-blue-700 font-source-sans-pro">Initial Config</main>
+			<Home />
 		</>
 	);
 }

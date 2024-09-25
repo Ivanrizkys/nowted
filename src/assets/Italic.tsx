@@ -15,7 +15,7 @@ const Italic = () => {
 						height="19"
 						fill="currentColor"
 						fillOpacity="0"
-						rx="-0.5"
+						rx="0"
 						transform="translate(.5 .5)"
 					/>
 				</clipPath>
@@ -25,7 +25,7 @@ const Italic = () => {
 				height="19"
 				fill="currentColor"
 				fillOpacity="0"
-				rx="-0.5"
+				rx="0"
 				transform="translate(.5 .5)"
 			/>
 			<g

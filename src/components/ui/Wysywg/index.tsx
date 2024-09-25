@@ -1,6 +1,10 @@
+import type { NotesDocType } from "@/config/rxdb";
 import { cn } from "@/utils";
 import isHotkey from "is-hotkey";
-import { useCallback, useState } from "react";
+import { Trash2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useRxCollection } from "rxdb-hooks";
 import { type Descendant, Transforms, createEditor } from "slate";
 import { withHistory } from "slate-history";
 import {
@@ -14,6 +18,7 @@ import {
 	useSlateStatic,
 	withReact,
 } from "slate-react";
+import { useDebounceCallback } from "usehooks-ts";
 import CustomEditor from "./Editor";
 import { withImages, withInlines } from "./Plugins";
 import {
@@ -35,12 +40,9 @@ const HOTKEYS = {
 	"mod+`": "code",
 } as const;
 
-const initialValue: Descendant[] = [
-	{
-		type: "paragraph",
-		children: [{ text: "For some reasons, i write this note to .." }],
-	},
-];
+interface WysywgProps {
+	content: Descendant[];
+}
 
 const ImageElement = ({
 	attributes,
@@ -61,27 +63,36 @@ const ImageElement = ({
 				<img
 					alt={imageElement.url as string}
 					src={imageElement.url as string}
-					className={cn("inline-block max-w-full max-h-[20em]")}
+					className={cn("inline-block max-w-full max-h-[20em] peer")}
 				/>
 				<button
 					type="button"
-					onClick={() => Transforms.removeNodes(editor, { at: path })}
+					onClick={() => {
+						Transforms.removeNodes(editor, { at: path });
+					}}
 					className={cn(
-						"absolute top-[.5em] left-[.5em]",
-						selected && focused ? "inline" : "hidden",
+						"absolute top-[.5em] left-[.5em] hidden peer-hover:inline hover:inline",
+						selected || (focused && "inline"),
 					)}
 				>
-					Del
+					<Trash2 className="w-5 h-5 text-red-500" />
 				</button>
 			</div>
 		</div>
 	);
 };
 
-const Wysywg = () => {
-	const [editor] = useState(() =>
-		withImages(withInlines(withReact(withHistory(createEditor())))),
+const Wysywg = ({ content }: WysywgProps) => {
+	const [key, setKey] = useState<number>(0);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	const editor = useMemo(
+		() => withImages(withInlines(withReact(withHistory(createEditor())))),
+		[key],
 	);
+
+	const { noteId } = useParams();
+	const notesCollection = useRxCollection<NotesDocType>("notes");
 
 	const renderElement = useCallback((props: RenderElementProps) => {
 		switch ((props.element as CustomElement).type) {
@@ -133,11 +144,28 @@ const Wysywg = () => {
 		[],
 	);
 
+	const handleUpdateData = useDebounceCallback(async (e: Descendant[]) => {
+		const query = notesCollection?.findOne({
+			selector: {
+				note_id: noteId,
+			},
+		});
+		await query?.incrementalPatch({
+			content: e as unknown as undefined,
+		});
+	}, 500);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		setKey((key) => key + 1);
+	}, [noteId]);
+
 	return (
 		<Slate
 			editor={editor}
-			// onChange={(value) => console.log(value)}
-			initialValue={initialValue}
+			onChange={handleUpdateData}
+			initialValue={content}
+			key={key}
 		>
 			<div className="flex items-center gap-7 py-3 border-t border-b border-tertiary-100/10">
 				<TypographySelect />
@@ -152,9 +180,8 @@ const Wysywg = () => {
 				</div>
 			</div>
 			<Editable
-				autoFocus
 				spellCheck
-				className="outline-none h-full"
+				className="outline-none h-full prose max-w-full prose-headings:text-tertiary-100 text-tertiary-100 prose-a:text-blue-600 prose-code:text-tertiary-100 prose-strong:text-tertiary-100 prose-p:mt-0 prose-img:mt-0 prose-headings:mt-0 prose-p:mb-2 prose-img:mb-2"
 				renderElement={renderElement}
 				renderLeaf={renderLeaf}
 				onKeyDown={(event) => {

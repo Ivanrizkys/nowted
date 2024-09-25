@@ -1,70 +1,99 @@
-import CardNotes, { type CardNotesData } from "@/components/ui/CardNotes";
-import ContentNote from "@/components/ui/ContentNote";
 import {
 	NavAddNote,
+	NavAddNoteItem,
 	NavContent,
+	// NavGoogleLogin,
 	NavGroupItems,
 	NavHeader,
 	NavItem,
 	NavNoteItem,
 } from "@/components/ui/Navbar";
-import Notes from "@/dummy/notes";
+import type { FoldersDocType, NotesDocType } from "@/config/rxdb";
 import { Archive, Folder, FolderOpen, Star, Trash } from "lucide-react";
-import { type ElementRef, useRef, useState } from "react";
-import DraggableList from "react-draggable-list";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useRxData } from "rxdb-hooks";
 
 const Home = () => {
-	const [notes, setNotes] = useState<ReadonlyArray<CardNotesData>>(Notes);
+	const [addNoteMode, setAddNoteMode] = useState<boolean>(false);
+	const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
 
-	const listNotesRef = useRef<ElementRef<"div">>(null);
+	const navigate = useNavigate();
+	const location = useLocation();
+	const { folderId, noteId } = useParams();
 
-	const onListChange = (newList: ReadonlyArray<CardNotesData>) => {
-		setNotes(newList);
-	};
+	const { result: folders, isFetching: isFetchingFolders } =
+		useRxData<FoldersDocType>("folders", (collection) => collection.find());
+
+	const { result: notes, isFetching: isFetchingNotes } =
+		useRxData<NotesDocType>("notes", (collection) =>
+			collection.find({
+				sort: [{ updated_at: "desc" }],
+			}),
+		);
+
+	useEffect(() => {
+		if (
+			isFirstTime &&
+			location.pathname === "/" &&
+			folders &&
+			folders.length > 0
+		) {
+			navigate(`/${folders[0].folder_id}`);
+			setIsFirstTime(false);
+		}
+	}, [folders, isFirstTime, navigate, location]);
 
 	return (
 		<main className="grid grid-cols-[300px_350px_1fr]">
 			<nav className="grid grid-cols-1 auto-rows-min gap-7 py-7">
 				<NavHeader />
-				<NavAddNote />
+				<NavAddNote setAddNoteMode={setAddNoteMode} />
+				{/* <NavGoogleLogin /> */}
 				<NavContent>
 					<NavGroupItems title="Recents">
-						<NavNoteItem active title="Reflection on the Month of June" />
-						<NavNoteItem title="Project proposal" />
-						<NavNoteItem title="Travel itinerary" />
+						{addNoteMode && <NavAddNoteItem setAddNoteMode={setAddNoteMode} />}
+						{!isFetchingNotes &&
+							notes.length > 0 &&
+							notes
+								.slice(0, 2)
+								.map((note) => (
+									<NavNoteItem
+										key={note?.note_id}
+										title={note?.title}
+										folderId={note?.folder_id}
+										noteId={note?.note_id}
+										active={noteId === note?.note_id}
+									/>
+								))}
 					</NavGroupItems>
-					<NavGroupItems title="Folders">
-						<NavItem
-							icon={<Folder className="w-5 h-5" />}
-							iconActive={<FolderOpen className="w-5 h-5" />}
-							title="Personal"
-							active
-						/>
-						<NavItem
-							icon={<Folder className="w-5 h-5" />}
-							iconActive={<FolderOpen className="w-5 h-5" />}
-							title="Work"
-						/>
-						<NavItem
-							icon={<Folder className="w-5 h-5" />}
-							iconActive={<FolderOpen className="w-5 h-5" />}
-							title="Travel"
-						/>
-						<NavItem
-							icon={<Folder className="w-5 h-5" />}
-							iconActive={<FolderOpen className="w-5 h-5" />}
-							title="Events"
-						/>
-						<NavItem
-							icon={<Folder className="w-5 h-5" />}
-							iconActive={<FolderOpen className="w-5 h-5" />}
-							title="Finances"
-						/>
+					<NavGroupItems title="Folders" withAddAction>
+						{!isFetchingFolders &&
+							folders.length > 0 &&
+							folders.map((folder) => (
+								<NavItem
+									id={folder.folder_id}
+									key={folder.folder_id}
+									icon={<Folder className="w-5 h-5" />}
+									iconActive={<FolderOpen className="w-5 h-5" />}
+									title={folder.name}
+									active={folderId === folder.folder_id}
+								/>
+							))}
 					</NavGroupItems>
 					<NavGroupItems title="More">
-						<NavItem icon={<Star className="w-5 h-5" />} title="Favorites" />
-						<NavItem icon={<Trash className="w-5 h-5" />} title="Trash" />
 						<NavItem
+							id="favourites"
+							icon={<Star className="w-5 h-5" />}
+							title="Favorites"
+						/>
+						<NavItem
+							id="trash"
+							icon={<Trash className="w-5 h-5" />}
+							title="Trash"
+						/>
+						<NavItem
+							id="archived"
 							icon={<Archive className="w-5 h-5" />}
 							iconActive={<FolderOpen className="w-5 h-5" />}
 							title="Archived Notes"
@@ -72,29 +101,7 @@ const Home = () => {
 					</NavGroupItems>
 				</NavContent>
 			</nav>
-			<aside className="bg-primary-100 min-h-dvh py-[30px]">
-				<h2 className="text-xl font-semibold px-5">Personal</h2>
-				<div
-					ref={listNotesRef}
-					className="grid grid-cols-1 gap-5 mt-7 pl-5 pr-[15px] h-[calc(100dvh_-_116px)] overflow-y-auto touch-pan-y | scroll-small"
-				>
-					<DraggableList<CardNotesData, void, CardNotes>
-						itemKey={"id"}
-						template={CardNotes}
-						list={notes}
-						onMoveEnd={(newList) => onListChange(newList)}
-						container={() => listNotesRef.current}
-					/>
-				</div>
-			</aside>
-			<aside className="p-[50px]">
-				<ContentNote
-					title={"Reflection on the Month of June"}
-					date={"21/06/2022"}
-					folder={"Personal"}
-					content={"test dulu"}
-				/>
-			</aside>
+			<Outlet />
 		</main>
 	);
 };

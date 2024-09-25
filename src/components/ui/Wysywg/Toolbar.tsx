@@ -4,9 +4,15 @@ import Image from "@/assets/Image";
 import Italic from "@/assets/Italic";
 import Link from "@/assets/Link";
 import Underline from "@/assets/Underline";
+import API from "@/config/wretch";
+import type { DefaultMeta, Response } from "@/dtos";
+import type { ImageUploadRes } from "@/dtos/note";
 import * as Select from "@radix-ui/react-select";
+import { ImagePlus, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import { useSlate } from "slate-react";
+import FormDataAddon from "wretch/addons/formData";
 import {
 	Dialog,
 	DialogContent,
@@ -187,12 +193,6 @@ const AddLinkButton = () => {
 					onClick={() => setOpenModal(true)}
 					type="button"
 					data-active={CustomEditor.isLinkActive(editor) ? "true" : "false"}
-					// onMouseDown={(event) => {
-					// 	event.preventDefault();
-					// 	const url = window.prompt("Enter the URL of the link:");
-					// 	if (!url) return;
-					// 	CustomEditor.insertLink(editor, url);
-					// }}
 					className="p-[1px] rounded-sm data-[active=true]:bg-tertiary-100 data-[active=true]:text-primary-100 text-tertiary-100 transition-colors duration-300 outline-none"
 				>
 					<Link title="Insert Link" />
@@ -217,8 +217,11 @@ const AddLinkButton = () => {
 						placeholder="Insert your link here .."
 						className="w-full"
 					/>
-					<button type="submit" className="mt-4 ml-auto block">
-						Submit
+					<button
+						type="submit"
+						className="mt-4 ml-auto block rounded-md font-semibold py-1 px-3 hover:bg-tertiary-100 hover:text-primary-200 duration-300 transition-colors"
+					>
+						Insert
 					</button>
 				</form>
 			</DialogContent>
@@ -228,24 +231,113 @@ const AddLinkButton = () => {
 
 export const AddImageButton = () => {
 	const editor = useSlate();
+	const [url, setUrl] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [openModal, setOpenModal] = useState(false);
+
+	const onOpenChange = useCallback((open: boolean) => {
+		// if (!open) setUrl("");
+		setOpenModal(open);
+		if (!open) {
+			setUrl("");
+			setLoading(false);
+		}
+	}, []);
+
+	const onDrop = useCallback((acceptedFiles: File[]) => {
+		setLoading(true);
+		const body = {
+			image: acceptedFiles[0],
+		};
+		API.addon(FormDataAddon)
+			.formData(body)
+			.url("/note/image-upload")
+			.post()
+			.json((res: Response<ImageUploadRes, DefaultMeta>) => {
+				setUrl(res.data.image_url);
+				setLoading(false);
+			})
+			.catch((err) => {
+				setLoading(false);
+			});
+	}, []);
+
+	const { getRootProps, getInputProps } = useDropzone({
+		onDrop,
+		accept: {
+			"image/png": [".png"],
+			"image/webp": [".webp"],
+			"image/jpeg": [".jpeg", ".jpg"],
+		},
+		multiple: false,
+	});
 
 	return (
-		<button
-			type="button"
-			// data-active={CustomEditor.isLinkActive(editor) ? "true" : "false"}
-			onMouseDown={(event) => {
-				event.preventDefault();
-				const url = window.prompt("Enter the URL of the image:");
-				if (url && !CustomEditor.isImageUrl(url)) {
-					alert("URL is not an image");
-					return;
-				}
-				url && CustomEditor.insertImage(editor, url);
-			}}
-			className="p-[1px] rounded-sm data-[active=true]:bg-tertiary-100 data-[active=true]:text-primary-100 text-tertiary-100 transition-colors duration-300"
-		>
-			<Image title="Insert Image" />
-		</button>
+		<Dialog open={openModal} onOpenChange={onOpenChange}>
+			<DialogTrigger asChild>
+				<button
+					type="button"
+					onMouseDown={(event) => {
+						event.preventDefault();
+						// const url = window.prompt("Enter the URL of the image:");
+						// if (url && !CustomEditor.isImageUrl(url)) {
+						// 	alert("URL is not an image");
+						// 	return;
+						// }
+						// url && CustomEditor.insertImage(editor, url);
+						setOpenModal(true);
+					}}
+					className="p-[1px] rounded-sm data-[active=true]:bg-tertiary-100 data-[active=true]:text-primary-100 text-tertiary-100 transition-colors duration-300 outline-none"
+				>
+					<Image title="Insert Image" />
+				</button>
+			</DialogTrigger>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Insert Image</DialogTitle>
+				</DialogHeader>
+				{!url ? (
+					<div
+						{...getRootProps()}
+						className="w-full h-40 border border-dashed border-tertiary-100 rounded-md flex items-center justify-center"
+					>
+						{!loading ? (
+							<>
+								<input {...getInputProps()} className="outline-none" />
+								<ImagePlus className="w-9 h-9 text-tertiary-100/50" />
+							</>
+						) : (
+							<div className="text-tertiary-100/50">
+								<Loader2 className="w-9 h-9 animate-spin block mx-auto" />
+								<p className="text-sm text-center">Uploading ...</p>
+							</div>
+						)}
+					</div>
+				) : (
+					<form
+						onSubmit={(e) => {
+							e.preventDefault();
+							CustomEditor.insertImage(editor, url);
+							setOpenModal(false);
+						}}
+					>
+						<Input
+							value={url}
+							disabled
+							name="link"
+							placeholder="Insert your link here .."
+							className="w-full"
+						/>
+						<button
+							className="mt-4 block ml-auto rounded-md font-semibold py-1 px-3 hover:bg-tertiary-100 hover:text-primary-200 duration-300 transition-colors"
+							type="submit"
+						>
+							Insert
+						</button>
+					</form>
+				)}
+			</DialogContent>
+		</Dialog>
 	);
 };
 

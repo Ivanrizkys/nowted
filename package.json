@@ -16,9 +16,12 @@
 		]
 	},
 	"dependencies": {
+		"@radix-ui/react-context-menu": "^2.2.1",
 		"@radix-ui/react-dialog": "^1.1.1",
 		"@radix-ui/react-dropdown-menu": "^2.1.1",
 		"@radix-ui/react-select": "^2.1.1",
+		"@react-oauth/google": "^0.12.1",
+		"dayjs": "^1.11.13",
 		"image-extensions": "^1.1.0",
 		"is-hotkey": "^0.2.0",
 		"is-url": "^1.2.4",
@@ -26,12 +29,21 @@
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"react-draggable-list": "^4.2.1",
+		"react-dropzone": "^14.2.3",
+		"react-router-dom": "^6.26.1",
+		"rxdb": "^15.31.4",
+		"rxdb-hooks": "^5.0.2",
+		"rxjs": "^7.8.1",
 		"slate": "^0.103.0",
 		"slate-history": "^0.100.0",
-		"slate-react": "^0.107.1"
+		"slate-react": "^0.107.1",
+		"ulid": "^2.3.0",
+		"usehooks-ts": "^3.1.0",
+		"wretch": "^2.9.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.8.3",
+		"@tailwindcss/typography": "^0.5.13",
 		"@types/is-hotkey": "^0.1.10",
 		"@types/is-url": "^1.2.32",
 		"@types/react": "^18.3.3",

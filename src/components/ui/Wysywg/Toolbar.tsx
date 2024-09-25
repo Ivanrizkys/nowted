@@ -258,6 +258,7 @@ export const AddImageButton = () => {
 				setLoading(false);
 			})
 			.catch((err) => {
+				import.meta.env.DEV && console.error("error when uploading image", err);
 				setLoading(false);
 			});
 	}, []);

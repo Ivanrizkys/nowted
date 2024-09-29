@@ -9,7 +9,16 @@ import {
 	NavNoteItem,
 } from "@/components/ui/Navbar";
 import type { FoldersDocType, NotesDocType } from "@/config/rxdb";
-import { Archive, Folder, FolderOpen, Star, Trash } from "lucide-react";
+import { cn } from "@/utils";
+import {
+	Archive,
+	Folder,
+	FolderOpen,
+	Sparkles,
+	Star,
+	Trash,
+	Trash2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useRxData } from "rxdb-hooks";
@@ -23,7 +32,11 @@ const Home = () => {
 	const { folderId, noteId } = useParams();
 
 	const { result: folders, isFetching: isFetchingFolders } =
-		useRxData<FoldersDocType>("folders", (collection) => collection.find());
+		useRxData<FoldersDocType>("folders", (collection) =>
+			collection.find({
+				sort: [{ name: "asc" }],
+			}),
+		);
 
 	const { result: notes, isFetching: isFetchingNotes } =
 		useRxData<NotesDocType>("notes", (collection) =>
@@ -45,7 +58,7 @@ const Home = () => {
 	}, [folders, isFirstTime, navigate, location]);
 
 	return (
-		<main className="grid grid-cols-[300px_350px_1fr]">
+		<main className={cn("grid grid-cols-[300px_350px_1fr]")}>
 			<nav className="grid grid-cols-1 auto-rows-min gap-7 py-7">
 				<NavHeader />
 				<NavAddNote setAddNoteMode={setAddNoteMode} />
@@ -83,19 +96,23 @@ const Home = () => {
 					</NavGroupItems>
 					<NavGroupItems title="More">
 						<NavItem
-							id="favourites"
+							id="favorites"
+							active={folderId === "favorites"}
 							icon={<Star className="w-5 h-5" />}
+							iconActive={<Sparkles className="w-5 h-5" />}
 							title="Favorites"
 						/>
 						<NavItem
 							id="trash"
+							active={folderId === "trash"}
 							icon={<Trash className="w-5 h-5" />}
+							iconActive={<Trash2 className="w-5 h-5" />}
 							title="Trash"
 						/>
 						<NavItem
-							id="archived"
+							id="archived-notes"
+							active={folderId === "archived-notes"}
 							icon={<Archive className="w-5 h-5" />}
-							iconActive={<FolderOpen className="w-5 h-5" />}
 							title="Archived Notes"
 						/>
 					</NavGroupItems>

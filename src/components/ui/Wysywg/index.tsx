@@ -22,7 +22,7 @@ import { useDebounceCallback } from "usehooks-ts";
 import CustomEditor from "./Editor";
 import { withImages, withInlines } from "./Plugins";
 import {
-	AddImageButton,
+	// AddImageButton,
 	AddLinkButton,
 	MarkButton,
 	TypographySelect,
@@ -176,7 +176,7 @@ const Wysywg = ({ content }: WysywgProps) => {
 				</div>
 				<div className="flex items-center gap-4">
 					<AddLinkButton />
-					<AddImageButton />
+					{/* <AddImageButton /> */}
 				</div>
 			</div>
 			<Editable

@@ -7,10 +7,12 @@ import {
 	toTypedRxJsonSchema,
 } from "rxdb";
 import { addRxPlugin } from "rxdb";
+import { RxDBDevModePlugin } from "rxdb/plugins/dev-mode";
 import { getRxStorageDexie } from "rxdb/plugins/storage-dexie";
 import { RxDBUpdatePlugin } from "rxdb/plugins/update";
 
 addRxPlugin(RxDBUpdatePlugin);
+import.meta.env.DEV && addRxPlugin(RxDBDevModePlugin);
 
 let dbPromise: Promise<RxDatabase> | null = null; // Singleton pattern to ensure a single instance
 
@@ -60,6 +62,10 @@ const notesSchemaLiteral = {
 		title: {
 			type: "string",
 		},
+		isFavorite: {
+			type: "boolean",
+			default: false,
+		},
 		content: {
 			type: "array",
 			default: [
@@ -68,6 +74,46 @@ const notesSchemaLiteral = {
 					children: [{ text: "Write your thoughts here .." }],
 				},
 			],
+			items: {},
+		},
+		created_at: {
+			type: "string",
+			maxLength: 30,
+			final: true,
+		},
+		updated_at: {
+			type: "string",
+			maxLength: 30,
+		},
+	},
+	required: ["note_id", "folder_id", "title", "created_at", "updated_at"],
+} as const;
+
+const otherNoteSchemaLiteral = {
+	title: "notes",
+	version: 0,
+	description: "collection a notes",
+	type: "object",
+	primaryKey: "other_note_id",
+	properties: {
+		other_note_id: {
+			type: "string",
+			maxLength: 50,
+		},
+		note_id: {
+			type: "string",
+			maxLength: 50,
+		},
+		folder_id: {
+			type: "string",
+			maxLength: 50,
+		},
+		title: {
+			type: "string",
+		},
+		content: {
+			type: "array",
+			items: {},
 		},
 		created_at: {
 			type: "string",
@@ -94,6 +140,12 @@ export type NotesDocType = ExtractDocumentTypeFromTypedRxJsonSchema<
 >;
 const notesSchema: RxJsonSchema<NotesDocType> = notesSchemaLiteral;
 
+const otherFolderSchemaTyped = toTypedRxJsonSchema(otherNoteSchemaLiteral);
+export type OtherNoteDocType = ExtractDocumentTypeFromTypedRxJsonSchema<
+	typeof otherFolderSchemaTyped
+>;
+const otherNoteSchema: RxJsonSchema<OtherNoteDocType> = otherNoteSchemaLiteral;
+
 const initRxDatabase = async (): Promise<RxDatabase> => {
 	if (!dbPromise) {
 		dbPromise = createRxDatabase({
@@ -106,6 +158,12 @@ const initRxDatabase = async (): Promise<RxDatabase> => {
 				},
 				notes: {
 					schema: notesSchema,
+				},
+				trash: {
+					schema: otherNoteSchema,
+				},
+				archived: {
+					schema: otherNoteSchema,
 				},
 			});
 			return db;

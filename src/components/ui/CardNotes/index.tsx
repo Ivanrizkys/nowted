@@ -1,8 +1,8 @@
 import type { NotesDocType } from "@/config/rxdb";
 import { cn } from "@/utils";
-import { Content, Portal, Root, Trigger } from "@radix-ui/react-context-menu";
+import { Portal, Root, Trigger } from "@radix-ui/react-context-menu";
 import dayjs from "dayjs";
-import { Archive, Ellipsis, Star, Trash } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { Component } from "react";
 import type { TemplateProps } from "react-draggable-list";
 import { Link, type NavigateFunction } from "react-router-dom";
@@ -11,6 +11,7 @@ import { Node } from "slate";
 import type { Editor } from "slate";
 
 export interface CardNotesCommonProps {
+	pathFolderId: string;
 	pathNoteId: string;
 	notesCollection: RxCollection<NotesDocType> | null;
 	navigate: NavigateFunction;
@@ -53,7 +54,7 @@ class CardNotes extends Component<CardNotesProps> {
 			<Root>
 				<Trigger asChild>
 					<Link
-						to={`/${item?.folder_id}/${item?.note_id}`}
+						to={`/${commonProps.pathFolderId === "trash" ? "trash" : commonProps.pathFolderId === "archived-notes" ? "archived-notes" : item?.folder_id}/${item?.note_id}`}
 						className={cn(
 							"grid grid-cols-1 gap-2 rounded-sm transition-colors duration-300 p-5 relative group max-h-full backdrop-blur-md transform-gpu cursor-default",
 							item?.note_id === commonProps?.pathNoteId
@@ -85,7 +86,7 @@ class CardNotes extends Component<CardNotesProps> {
 					</Link>
 				</Trigger>
 				<Portal>
-					<Content className="w-52 bg-[#333333] p-4 grid grid-cols-1 auto-rows-min gap-5 rounded-md z-10 animate-in fade-in-80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
+					{/* <Content className="w-52 bg-[#333333] p-4 grid grid-cols-1 auto-rows-min gap-5 rounded-md z-10 animate-in fade-in-80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2">
 						<button type="button" className="flex items-center gap-4">
 							<Star className="w-5 h-5" />
 							<span>Add to favorites</span>
@@ -103,7 +104,7 @@ class CardNotes extends Component<CardNotesProps> {
 							<Trash className="w-5 h-5" />
 							<span>Delete</span>
 						</button>
-					</Content>
+					</Content> */}
 				</Portal>
 			</Root>
 		);

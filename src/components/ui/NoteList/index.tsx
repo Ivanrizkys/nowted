@@ -7,6 +7,7 @@ import { type ElementRef, useEffect, useRef, useState } from "react";
 import DraggableList from "react-draggable-list";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useRxCollection, useRxData } from "rxdb-hooks";
+import EmptyNote from "../EmptyNote";
 
 const NoteList = () => {
 	const [notes, setNotes] = useState<ReadonlyArray<CardNotesData>>([]);
@@ -28,12 +29,26 @@ const NoteList = () => {
 	);
 
 	const { result: notesData, isFetching } = useRxData<NotesDocType>(
-		"notes",
+		folderId
+			? folderId === "trash"
+				? "trash"
+				: folderId === "archived-notes"
+					? "archived"
+					: "notes"
+			: "",
 		(collection) =>
 			collection.find({
-				selector: {
-					folder_id: folderId,
-				},
+				selector:
+					folderId === "trash" || folderId === "archived-notes"
+						? undefined
+						: folderId === "favorites"
+							? {
+									isFavorite: true,
+								}
+							: {
+									folder_id: folderId,
+								},
+				sort: [{ updated_at: "desc" }],
 			}),
 	);
 
@@ -49,29 +64,48 @@ const NoteList = () => {
 
 	return (
 		<>
-			<aside className="bg-primary-100 min-h-dvh py-[30px]">
-				<h2 className="text-xl font-semibold px-5">{folder[0]?.name}</h2>
-				<div
-					ref={listNotesRef}
-					className="grid grid-cols-1 gap-5 mt-7 pl-5 pr-[15px] h-[calc(100dvh_-_116px)] overflow-y-auto touch-pan-y | scroll-small"
-				>
-					{!isFetching && notesData.length > 0 && (
-						<DraggableList<CardNotesData, CardNotesCommonProps, CardNotes>
-							itemKey={"note_id"}
-							template={CardNotes}
-							list={notes}
-							onMoveEnd={(newList) => onListChange(newList)}
-							container={() => listNotesRef.current}
-							commonProps={{
-								pathNoteId: noteId as string,
-								notesCollection: notesCollection,
-								navigate: navigate,
-							}}
-						/>
-					)}
-				</div>
-			</aside>
-			<Outlet />
+			{notesData?.length === 0 ? (
+				<aside className="w-full min-h-dvh col-span-2 bg-primary-100">
+					<EmptyNote />
+				</aside>
+			) : (
+				<>
+					<aside className="bg-primary-100 min-h-dvh py-[30px]">
+						<h2 className="text-xl font-semibold px-5">
+							{folderId
+								? folderId === "favorites"
+									? "Favorites"
+									: folderId === "trash"
+										? "Trash"
+										: folderId === "archived-notes"
+											? "Archived"
+											: folder[0]?.name
+								: ""}
+						</h2>
+						<div
+							ref={listNotesRef}
+							className="grid grid-cols-1 gap-5 mt-7 pl-5 pr-[15px] h-[calc(100dvh_-_116px)] overflow-y-auto touch-pan-y | scroll-small"
+						>
+							{!isFetching && (
+								<DraggableList<CardNotesData, CardNotesCommonProps, CardNotes>
+									itemKey={"note_id"}
+									template={CardNotes}
+									list={notes}
+									onMoveEnd={(newList) => onListChange(newList)}
+									container={() => listNotesRef.current}
+									commonProps={{
+										pathFolderId: folderId as string,
+										pathNoteId: noteId as string,
+										notesCollection: notesCollection,
+										navigate: navigate,
+									}}
+								/>
+							)}
+						</div>
+					</aside>
+					<Outlet />
+				</>
+			)}
 		</>
 	);
 };

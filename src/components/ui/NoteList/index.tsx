@@ -62,6 +62,8 @@ const NoteList = () => {
 		}
 	}, [notesData, isFetching]);
 
+	if (isFetching) return null;
+
 	return (
 		<>
 			{notesData?.length === 0 ? (
@@ -86,21 +88,19 @@ const NoteList = () => {
 							ref={listNotesRef}
 							className="grid grid-cols-1 gap-5 mt-7 pl-5 pr-[15px] h-[calc(100dvh_-_116px)] overflow-y-auto touch-pan-y | scroll-small"
 						>
-							{!isFetching && (
-								<DraggableList<CardNotesData, CardNotesCommonProps, CardNotes>
-									itemKey={"note_id"}
-									template={CardNotes}
-									list={notes}
-									onMoveEnd={(newList) => onListChange(newList)}
-									container={() => listNotesRef.current}
-									commonProps={{
-										pathFolderId: folderId as string,
-										pathNoteId: noteId as string,
-										notesCollection: notesCollection,
-										navigate: navigate,
-									}}
-								/>
-							)}
+							<DraggableList<CardNotesData, CardNotesCommonProps, CardNotes>
+								itemKey={"note_id"}
+								template={CardNotes}
+								list={notes}
+								onMoveEnd={(newList) => onListChange(newList)}
+								container={() => listNotesRef.current}
+								commonProps={{
+									pathFolderId: folderId as string,
+									pathNoteId: noteId as string,
+									notesCollection: notesCollection,
+									navigate: navigate,
+								}}
+							/>
 						</div>
 					</aside>
 					<Outlet />

@@ -76,7 +76,7 @@ const NoteList = () => {
 			) : (
 				<>
 					<aside className="bg-primary-100 min-h-dvh py-[30px]">
-						<div className="block min-[850px]:hidden px-5 mb-5">
+						<div className="block min-[1250px]:hidden px-5 mb-5">
 							<NavbarMobile />
 						</div>
 						<h2 className="text-xl font-semibold px-5">
@@ -92,7 +92,7 @@ const NoteList = () => {
 						</h2>
 						<div
 							ref={listNotesRef}
-							className="grid grid-cols-1 gap-5 mt-7 pl-5 pr-[15px] h-[calc(100dvh_-_116px)] overflow-y-auto touch-pan-y | scroll-small"
+							className="grid grid-cols-1 gap-5 mt-7 pl-5 pr-[15px] min-[850px]:h-[calc(100dvh_-_116px)] min-[850px]:overflow-y-auto touch-pan-y | scroll-small"
 						>
 							<DraggableList<CardNotesData, CardNotesCommonProps, CardNotes>
 								itemKey={"note_id"}

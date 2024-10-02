@@ -15,7 +15,7 @@ import {
 import { Link, useParams } from "react-router-dom";
 import { useRxCollection } from "rxdb-hooks";
 import { ulid } from "ulid";
-import { useOnClickOutside } from "usehooks-ts";
+import { useOnClickOutside, useScreen } from "usehooks-ts";
 
 export interface NavAddNoteProps {
 	setAddNoteMode: React.Dispatch<React.SetStateAction<boolean>>;
@@ -187,9 +187,11 @@ const NavGroupItems = ({
 };
 
 const NavNoteItem = ({ title, active, folderId, noteId }: NavNoteItemProps) => {
+	const screen = useScreen();
+
 	return (
 		<Link
-			to={`${folderId}/${noteId}`}
+			to={`${screen.width < 850 ? "/mobile/" : ""}${folderId}/${noteId}`}
 			data-active={active ? "true" : "false"}
 			className={cn(
 				"py-[10px] px-5 flex items-center gap-4 transition-colors duration bg-primary-200 data-[active=true]:bg-secondary-100 data-[active=false]:hover:bg-tertiary-100/[.03] text-tertiary-100/60 data-[active=true]:text-tertiary-100",

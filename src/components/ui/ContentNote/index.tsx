@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import {
 	Archive,
 	ArchiveRestore,
+	ArrowLeft,
 	CircleEllipsis,
 	Star,
 	StarOff,
@@ -195,11 +196,18 @@ const ContentNote = () => {
 	if (isFetchingNote || isFetchingFolder) return null;
 
 	return (
-		<aside className="p-[50px] h-dvh overflow-y-auto | scroll-small">
+		<aside className="py-[30px] px-5 min-[850px]:p-[50px] h-dvh overflow-y-auto | scroll-small">
 			{folderId === "trash" ? (
 				<RestoreNote note={note[0]} />
 			) : (
 				<animated.div style={{ ...motion }} className="grid grid-cols-1 gap-7">
+					<button
+						type="button"
+						onClick={() => navigate(-1)}
+						className="min-[850px]:hidden"
+					>
+						<ArrowLeft className="w-6 h-6" />
+					</button>
 					<div className="flex items-center justify-between">
 						{toogleEditTitle ? (
 							<input

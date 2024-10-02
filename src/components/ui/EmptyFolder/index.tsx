@@ -10,7 +10,7 @@ const EmptyFolder = () => {
 	return (
 		<animated.div
 			style={{ ...motion }}
-			className="h-full col-span-2 bg-primary-100 flex flex-col items-center justify-center gap-4 text-center p-12"
+			className="min-h-dvh col-span-2 bg-primary-100 flex flex-col items-center justify-center gap-4 text-center p-12"
 		>
 			<FilePlus2 className="w-[53px] h-[66px]" />
 			<h2 className="font-semibold text-3xl">Select a folder to view</h2>

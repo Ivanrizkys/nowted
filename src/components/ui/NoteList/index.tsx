@@ -7,11 +7,14 @@ import { type ElementRef, useEffect, useRef, useState } from "react";
 import DraggableList from "react-draggable-list";
 import { Outlet, useNavigate, useParams } from "react-router-dom";
 import { useRxCollection, useRxData } from "rxdb-hooks";
+import { useScreen } from "usehooks-ts";
 import EmptyNote from "../EmptyNote";
+import NavbarMobile from "../NavbarMobile";
 
 const NoteList = () => {
 	const [notes, setNotes] = useState<ReadonlyArray<CardNotesData>>([]);
 
+	const screen = useScreen();
 	const listNotesRef = useRef<ElementRef<"div">>(null);
 
 	const navigate = useNavigate();
@@ -73,6 +76,9 @@ const NoteList = () => {
 			) : (
 				<>
 					<aside className="bg-primary-100 min-h-dvh py-[30px]">
+						<div className="block min-[850px]:hidden px-5 mb-5">
+							<NavbarMobile />
+						</div>
 						<h2 className="text-xl font-semibold px-5">
 							{folderId
 								? folderId === "favorites"
@@ -99,11 +105,12 @@ const NoteList = () => {
 									pathNoteId: noteId as string,
 									notesCollection: notesCollection,
 									navigate: navigate,
+									screenWidth: screen.width,
 								}}
 							/>
 						</div>
 					</aside>
-					<Outlet />
+					{screen.width > 850 && <Outlet />}
 				</>
 			)}
 		</>

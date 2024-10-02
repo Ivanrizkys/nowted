@@ -9,7 +9,6 @@ import {
 	NavNoteItem,
 } from "@/components/ui/Navbar";
 import type { FoldersDocType, NotesDocType } from "@/config/rxdb";
-import { cn } from "@/utils";
 import {
 	Archive,
 	Folder,
@@ -58,8 +57,8 @@ const Home = () => {
 	}, [folders, isFirstTime, navigate, location]);
 
 	return (
-		<main className={cn("grid grid-cols-[300px_350px_1fr]")}>
-			<nav className="grid grid-cols-1 auto-rows-min gap-7 py-7">
+		<main className="grid grid-cols-1 min-[850px]:grid-cols-[350px_1fr] min-[1250px]:grid-cols-[300px_350px_1fr]">
+			<nav className="hidden min-[1250px]:grid grid-cols-1 auto-rows-min gap-7 py-7">
 				<NavHeader />
 				<NavAddNote setAddNoteMode={setAddNoteMode} />
 				{/* <NavGoogleLogin /> */}

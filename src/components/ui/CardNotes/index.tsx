@@ -15,6 +15,7 @@ export interface CardNotesCommonProps {
 	pathNoteId: string;
 	notesCollection: RxCollection<NotesDocType> | null;
 	navigate: NavigateFunction;
+	screenWidth: number;
 }
 
 export interface CardNotesData {
@@ -54,7 +55,7 @@ class CardNotes extends Component<CardNotesProps> {
 			<Root>
 				<Trigger asChild>
 					<Link
-						to={`/${commonProps.pathFolderId === "trash" ? "trash" : commonProps.pathFolderId === "archived-notes" ? "archived-notes" : item?.folder_id}/${item?.note_id}`}
+						to={`${commonProps.screenWidth < 850 ? "/mobile" : ""}/${commonProps.pathFolderId === "trash" ? "trash" : commonProps.pathFolderId === "archived-notes" ? "archived-notes" : item?.folder_id}/${item?.note_id}`}
 						className={cn(
 							"grid grid-cols-1 gap-2 rounded-sm transition-colors duration-300 p-5 relative group max-h-full backdrop-blur-md transform-gpu cursor-default",
 							item?.note_id === commonProps?.pathNoteId

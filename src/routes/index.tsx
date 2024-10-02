@@ -28,6 +28,14 @@ const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter([
 					},
 				],
 			},
+			{
+				path: "mobile/:folderId",
+				element: <NoteList />,
+			},
+			{
+				path: "mobile/:folderId/:noteId",
+				element: <ContentNote />,
+			},
 		],
 	},
 ]);

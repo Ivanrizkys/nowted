@@ -18,16 +18,16 @@ import {
 	Trash,
 	Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useParams } from "react-router-dom";
 import { useRxData } from "rxdb-hooks";
 
 const Home = () => {
 	const [addNoteMode, setAddNoteMode] = useState<boolean>(false);
-	const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
+	// const [isFirstTime, setIsFirstTime] = useState<boolean>(true);
 
-	const navigate = useNavigate();
-	const location = useLocation();
+	// const navigate = useNavigate();
+	// const location = useLocation();
 	const { folderId, noteId } = useParams();
 
 	const { result: folders, isFetching: isFetchingFolders } =
@@ -44,17 +44,17 @@ const Home = () => {
 			}),
 		);
 
-	useEffect(() => {
-		if (
-			isFirstTime &&
-			location.pathname === "/" &&
-			folders &&
-			folders.length > 0
-		) {
-			navigate(`/${folders[0].folder_id}`);
-			setIsFirstTime(false);
-		}
-	}, [folders, isFirstTime, navigate, location]);
+	// useEffect(() => {
+	// 	if (
+	// 		isFirstTime &&
+	// 		location.pathname === "/" &&
+	// 		folders &&
+	// 		folders.length > 0
+	// 	) {
+	// 		navigate(`/${folders[0].folder_id}`);
+	// 		setIsFirstTime(false);
+	// 	}
+	// }, [folders, isFirstTime, navigate, location]);
 
 	return (
 		<main className="grid grid-cols-1 min-[850px]:grid-cols-[350px_1fr] min-[1250px]:grid-cols-[300px_350px_1fr]">

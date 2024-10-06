@@ -1,30 +1,32 @@
-# React + TypeScript + Vite
+# Nowted
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A daily task-tracking application that can also be used as a place to store ideas, with the ability to categorize them.
 
-Currently, two official plugins are available:
+## Feature
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Store daily notes and tasks ✅
+- Organize notes into folders ✅
+- Supports offline usage (IndexedDB) and online storage (PostgreSQL) ⌛
+- Automatic data synchronization when the internet connection is restored ⌛
+- PWA support ⌛
 
-## Expanding the ESLint configuration
+## Screenshots
+![thumbnail](https://raw.githubusercontent.com/Ivanrizkys/nowted/main/screenshots/nowted-preview.png)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Stacks
+- Next.js
+- RxDB (Store local data in IndexedDB)
+- TailwindCSS
 
-- Configure the top-level `parserOptions` property like this:
+## Setup in Local
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+### Preprequisites
+- `node`, minimum version 20.11.1
+- `pnpm`, [see installation instruction](https://pnpm.io/installation)
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+### Development
+- Install all dependencies, by running `pnpm install`
+- Run in local, using command pnpm run dev
+
+## Design
+Designs can be found at [Codedesign - Nowted](https://codedesign.dev/challenge/nowted-app). Special thanks to [Codedesign](https://codedesign.dev) for this awesome design.
